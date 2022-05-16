@@ -9,10 +9,10 @@ while True:
             sys.exit()
 
     # clearing canvas
-    CANVAS.fill("gray")
+    CANVAS.fill((35, 35, 35))
 
     # drawing environments
-    LEVEL.draw(CANVAS)
+    # LEVEL.draw(CANVAS)
 
     # drawing & updating enemies
     # ENEMIES.draw(CANVAS)

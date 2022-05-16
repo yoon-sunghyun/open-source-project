@@ -18,40 +18,57 @@ class Player(Entity):
     # constructor
     def __init__(self, pos=pygame.math.Vector2(0, 0), max_hp=100):
         super().__init__(pos, max_hp)
-        self.inputs = self.Input.NONE
         return
 
     # gets key inputs
     def get_key_events(self):
-        self.inputs = self.Input.NONE
-        keys        = pygame.key.get_pressed()
+        inputs = self.Input.NONE
+        keys   = pygame.key.get_pressed()
 
-        if (keys[pygame.K_UP]):
-            self.inputs |= self.Input.UP
-        if (keys[pygame.K_DOWN]):
-            self.inputs |= self.Input.DOWN
-        if (keys[pygame.K_LEFT]):
-            self.inputs |= self.Input.LEFT
-        if (keys[pygame.K_RIGHT]):
-            self.inputs |= self.Input.RIGHT
-        if (keys[pygame.K_SPACE]):
-            self.inputs |= self.Input.JUMP
+        if (keys[pygame.K_UP]):     inputs |= self.Input.UP
+        if (keys[pygame.K_DOWN]):   inputs |= self.Input.DOWN
+        if (keys[pygame.K_LEFT]):   inputs |= self.Input.LEFT
+        if (keys[pygame.K_RIGHT]):  inputs |= self.Input.RIGHT
+        if (keys[pygame.K_SPACE]):  inputs |= self.Input.JUMP
+        if (keys[pygame.K_d]):      inputs |= self.Input.ATK1
+        if (keys[pygame.K_s]):      inputs |= self.Input.ATK2
 
-        if (DEBUG and self.inputs != self.Input.NONE):
-            print(self.inputs)
-        return
+        if (DEBUG and inputs != self.Input.NONE):
+            print(inputs)
+        return inputs
 
-    def move(self):
-        if ((self.inputs is self.Input.NONE) or
-            (self.inputs&self.Input.LEFT and self.inputs&self.Input.RIGHT)):
-            self.anim_type      = Entity.Animation.IDLE
-        elif ((self.inputs&self.Input.LEFT and not self.inputs&self.Input.RIGHT) or
-              (not self.inputs&self.Input.LEFT and self.inputs&self.Input.RIGHT)):
-            self.anim_type      = Entity.Animation.MOVE
-            self.is_facing_left = bool(self.inputs&self.Input.LEFT)
-
-        if (self.inputs&self.Input.JUMP):
-            if (not (self.is_jumping or self.is_falling)):
-                self.is_jumping = True
+    # updates this Player
+    def update(self):
+        super().update()
+        inputs = self.get_key_events()
+        if (not (self.hp <= 0 or self.is_attacking)):
+            # moving
+            if ((inputs is self.Input.NONE) or
+                (inputs&self.Input.LEFT and inputs&self.Input.RIGHT)):
+                self.anim_type      = self.Animation.IDLE
+            elif ((inputs&self.Input.LEFT and not inputs&self.Input.RIGHT) or
+                  (not inputs&self.Input.LEFT and inputs&self.Input.RIGHT)):
+                self.anim_type      = self.Animation.MOVE
+                self.is_facing_left = bool(inputs&self.Input.LEFT)
+            # jumping
+            if (inputs&self.Input.JUMP):
+                if (not (self.is_jumping or self.is_falling)):
+                    self.anim_type  = self.Animation.JUMP
+                    self.is_jumping = True
+                    self.is_falling = False
+            else:
+                self.is_jumping = False
                 self.is_falling = False
+            # attacking
+            if (inputs&self.Input.ATK1 and inputs&self.Input.ATK2):
+                self.is_attacking = False
+            elif (inputs&self.Input.ATK1):
+                self.anim_type    = self.Animation.ATK1
+                self.anim_step    = 0
+                self.is_attacking = True
+            elif (inputs&self.Input.ATK2):
+                self.anim_type    = self.Animation.ATK2
+                self.anim_step    = 0
+                self.is_attacking = True
+        super().animate()
         return

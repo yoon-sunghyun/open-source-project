@@ -28,9 +28,13 @@ class Entity(pygame.sprite.Sprite):
         self.max_hp    = max_hp
         self.hp        = max_hp
 
+        self.hurtbox = None
+        self.hitbox  = None
+
         self.is_jumping     = False
         self.is_falling     = False
         self.is_facing_left = False
+        self.is_attacking   = False
         return
 
     # animates this Entity
@@ -41,6 +45,9 @@ class Entity(pygame.sprite.Sprite):
             # resetting animation step
             if (self.anim_step >= len(self.anim_list[self.anim_type])):
                 self.anim_step = 0
+                if (self.is_attacking):
+                    self.anim_type    = self.Animation.IDLE
+                    self.is_attacking = False
             # updating sprite
             self.image = self.anim_list[self.anim_type][int(self.anim_step)]
             self.image = pygame.transform.flip(self.image, self.is_facing_left, False)
@@ -51,4 +58,9 @@ class Entity(pygame.sprite.Sprite):
     def debug_animate(self):
         # drawing image outline
         pygame.draw.rect(self.image, "white", self.image.get_rect(), 1)
+        # drawing hurtbox outline
+        hurtbox_in_image = pygame.Rect(
+            ((self.rect.w-self.hurtbox.w)//2, (self.rect.h-self.hurtbox.h)),
+            (self.hurtbox.w, self.hurtbox.h))
+        pygame.draw.rect(self.image, "blue", hurtbox_in_image, 1)
         return

@@ -11,12 +11,5 @@ class TestCharacter(Player):
         self.anim_type = self.Animation.IDLE
         self.image     = self.anim_list[self.anim_type][0]
         self.rect      = self.image.get_rect(midbottom=tuple(pos))
-        return
-
-    # updates this TestCharacter
-    def update(self):
-        super().update()
-        super().get_key_events()
-        super().move()
-        super().animate()
+        self.hurtbox   = self.rect
         return
