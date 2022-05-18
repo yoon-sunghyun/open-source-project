@@ -41,7 +41,7 @@ class Entity(pygame.sprite.Sprite):
     def animate(self):
         if (self.anim_list != None and len(self.anim_list) > 0 and self.anim_type != None):
             # increasing animation step
-            self.anim_step += 10/FPS
+            self.anim_step += CLOCK.get_time()/100
             # resetting animation step
             if (self.anim_step >= len(self.anim_list[self.anim_type])):
                 self.anim_step = 0
