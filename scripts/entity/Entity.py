@@ -24,7 +24,10 @@ class Entity(pygame.sprite.Sprite):
         self.image     = NONE_IMG
         self.rect      = self.image.get_rect()
         # gameplay realted attributes
+        self.acc       = pygame.math.Vector2(0, 0)
+        self.vel       = pygame.math.Vector2(0, 0)
         self.pos       = pos
+
         self.max_hp    = max_hp
         self.hp        = max_hp
 

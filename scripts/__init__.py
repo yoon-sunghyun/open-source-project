@@ -7,7 +7,7 @@ PARSER = argparse.ArgumentParser(description=DESCRIPTION)
 PARSER.add_argument(
     "-c", "--cursor",
     action  = "store_true",
-    help    = "show system cursor instead of virtual cursor")
+    help    = "show cursor")
 PARSER.add_argument(
     "-d", "--debug",
     action  = "store_true",
@@ -38,26 +38,27 @@ DISPLAY_SCALE = 600
 DISPLAY_SIZE  = pygame.math.Vector2(RATIO_W*DISPLAY_SCALE, RATIO_H*DISPLAY_SCALE)
 DISPLAY       = pygame.display.set_mode(tuple(DISPLAY_SIZE))
 
-# cursor related setup
-SHOW_CURSOR = ARGS.cursor or ARGS.debug
-pygame.mouse.set_visible(SHOW_CURSOR)
-
-from scripts.utils       import *
-from scripts.assets      import *
-from scripts.entity      import *
-from scripts.environment import *
-
 CANVAS_SCALE  = 200
 CANVAS_SIZE   = pygame.math.Vector2(RATIO_W*CANVAS_SCALE, RATIO_H*CANVAS_SCALE)
 CANVAS        = pygame.Surface(tuple(CANVAS_SIZE))
 
+# cursor related setup
+SHOW_CURSOR = ARGS.cursor or ARGS.debug
+pygame.mouse.set_visible(SHOW_CURSOR)
+
+from scripts.utils  import *
+from scripts.assets import *
+
 # creating environments
-LEVEL = pygame.sprite.Group([Environment()])
+from scripts.environment import *
+LEVEL    = pygame.sprite.Group([Environment()])
+GRAVITY  = 2.0
+FRICTION = -0.1
 
 # creating entities
+from scripts.entity import *
 ENEMIES = pygame.sprite.Group([Enemy()])
-PLAYER  = pygame.sprite.GroupSingle(
-    TestCharacter(pygame.math.Vector2(CANVAS_SIZE.x//2, CANVAS_SIZE.y//2)))
+PLAYER  = pygame.sprite.GroupSingle(Player(pygame.math.Vector2(CANVAS_SIZE.x//2, CANVAS_SIZE.y//2)))
 
 pygame.display.set_caption(f"[{DESCRIPTION}]-[{CLOCK.get_fps():.2f} FPS]")
 pygame.display.set_icon(ICON_IMG)
