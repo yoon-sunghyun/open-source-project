@@ -137,13 +137,13 @@ class Entity(pygame.sprite.Sprite):
             self.is_falling = False
         elif (self.vel.y < 0):
             # jumping
-            if (not (self.is_hurt or self.is_attacking)):
+            if (not (self.hp == 0 or self.is_hurt or self.is_attacking)):
                 self.anim_type = self.Animation.JUMP
             self.is_jumping = True
             self.is_falling = False
         elif (self.vel.y > 0):
             # falling
-            if (not (self.is_hurt or self.is_attacking)):
+            if (not (self.hp == 0 or self.is_hurt or self.is_attacking)):
                 self.anim_type = self.Animation.FALL
             self.is_jumping = False
             self.is_falling = True
