@@ -1,4 +1,5 @@
 import argparse
+import glob
 import os
 import random
 import sys
@@ -39,14 +40,11 @@ DISPLAY       = pygame.display.set_mode(tuple(DISPLAY_SIZE))
 
 CANVAS_SCALE  = 200
 CANVAS_SIZE   = pygame.math.Vector2(RATIO_W*CANVAS_SCALE, RATIO_H*CANVAS_SCALE)
-CANVAS        = pygame.Surface(tuple(CANVAS_SIZE))
+CANVAS        = pygame.Surface(tuple(CANVAS_SIZE)).convert_alpha()
 
 from scripts.utils  import *
 from scripts.assets import *
 
-# creating environments
-from scripts.environment import *
-LEVEL    = pygame.sprite.Group([Environment()])
 GRAVITY  = 2.0
 FRICTION = -0.15
 

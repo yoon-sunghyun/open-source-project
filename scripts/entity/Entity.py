@@ -41,11 +41,22 @@ class Entity(pygame.sprite.Sprite):
 
         self.max_hp    = max_hp
         self.hp        = max_hp
+        self.dmg       = max_hp//5
 
         self.is_jumping     = False
         self.is_falling     = False
         self.is_facing_left = False
+        self.is_hurt        = False
         self.is_attacking   = False
+        return
+
+    def take_damage(self, damage):
+        if (not self.is_hurt):
+            self.anim_type    = self.Animation.HURT
+            self.anim_step    = 0
+            self.is_hurt      = True
+            self.is_attacking = False
+            self.hp           = max(0, self.hp-damage)
         return
 
     # animates this Entity
@@ -55,10 +66,14 @@ class Entity(pygame.sprite.Sprite):
             self.anim_step += CLOCK.get_time()/100
             # resetting animation step
             if (self.anim_step >= len(self.anim_list[self.anim_type])):
-                self.anim_step = 0
-                if (self.is_attacking):
-                    self.anim_type    = self.Animation.IDLE
-                    self.is_attacking = False
+                if (self.anim_type == self.Animation.DEAD):
+                    self.anim_step = len(self.anim_list[self.anim_type])-1
+                else:
+                    if (self.is_hurt):
+                        self.is_hurt = False
+                    if (self.is_attacking):
+                        self.is_attacking = False
+                    self.anim_step = 0
             # updating sprite
             self.image = self.anim_list[self.anim_type][int(self.anim_step)]
             self.image = pygame.transform.flip(self.image, self.is_facing_left, False)
@@ -72,8 +87,12 @@ class Entity(pygame.sprite.Sprite):
         return
 
     def update(self, inputs):
+        # movement
         self.acc = pygame.math.Vector2(0, GRAVITY)
-        if (not (self.hp <= 0 or self.is_attacking)):
+        if (self.hp == 0 and self.pos.y == CANVAS_SIZE.y and self.anim_type != self.Animation.DEAD):
+            self.anim_type = self.Animation.DEAD
+            self.anim_step = 0
+        elif (not (self.is_hurt or self.is_attacking)):
             # moving
             if ((inputs is self.Input.NONE) or
                 (inputs&self.Input.LEFT and inputs&self.Input.RIGHT)):
@@ -85,7 +104,7 @@ class Entity(pygame.sprite.Sprite):
                 self.acc.x          = 3*(-1 if self.is_facing_left else 1)
             # jumping
             if (inputs&self.Input.JUMP and not (self.is_jumping or self.is_falling)):
-                self.acc.y      = -40
+                self.acc.y      = -50
                 self.is_jumping = True
                 self.is_falling = False
             # attacking
@@ -118,13 +137,13 @@ class Entity(pygame.sprite.Sprite):
             self.is_falling = False
         elif (self.vel.y < 0):
             # jumping
-            if (not self.is_attacking):
+            if (not (self.is_hurt or self.is_attacking)):
                 self.anim_type = self.Animation.JUMP
             self.is_jumping = True
             self.is_falling = False
         elif (self.vel.y > 0):
             # falling
-            if (not self.is_attacking):
+            if (not (self.is_hurt or self.is_attacking)):
                 self.anim_type = self.Animation.FALL
             self.is_jumping = False
             self.is_falling = True

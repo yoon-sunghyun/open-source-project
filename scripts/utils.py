@@ -1,6 +1,4 @@
-import glob
-import pygame
-from scripts import DEBUG
+from scripts import *
 
 # loads a single image
 def load_image(file_path):
