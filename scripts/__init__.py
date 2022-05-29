@@ -2,6 +2,8 @@ import argparse
 import os
 import sys
 
+MAIN_PATH = os.path.join(os.path.dirname(__file__), "..")
+
 DESCRIPTION = "Sejong Uni. Open Source Project"
 PARSER = argparse.ArgumentParser(description=DESCRIPTION)
 PARSER.add_argument(
