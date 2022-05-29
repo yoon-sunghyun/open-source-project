@@ -14,6 +14,17 @@ class Entity(pygame.sprite.Sprite):
         ATK1 = 6
         ATK2 = 7
 
+    @enum.unique
+    class Input(enum.IntFlag):
+        NONE  = 0b_0000_0000
+        UP    = 0b_0000_0001
+        DOWN  = 0b_0000_0010
+        LEFT  = 0b_0000_0100
+        RIGHT = 0b_0000_1000
+        JUMP  = 0b_0001_0000
+        ATK1  = 0b_0010_0000
+        ATK2  = 0b_0100_0000
+
     # constructor
     def __init__(self, pos=pygame.math.Vector2(0, 0), max_hp=100):
         super().__init__()
@@ -30,9 +41,6 @@ class Entity(pygame.sprite.Sprite):
 
         self.max_hp    = max_hp
         self.hp        = max_hp
-
-        self.hurtbox = None
-        self.hitbox  = None
 
         self.is_jumping     = False
         self.is_falling     = False
@@ -61,9 +69,64 @@ class Entity(pygame.sprite.Sprite):
     def debug_animate(self):
         # drawing image outline
         pygame.draw.rect(self.image, "white", self.image.get_rect(), 1)
-        # drawing hurtbox outline
-        hurtbox_in_image = pygame.Rect(
-            ((self.rect.w-self.hurtbox.w)//2, (self.rect.h-self.hurtbox.h)),
-            (self.hurtbox.w, self.hurtbox.h))
-        pygame.draw.rect(self.image, "blue", hurtbox_in_image, 1)
+        return
+
+    def update(self, inputs):
+        self.acc = pygame.math.Vector2(0, GRAVITY)
+        if (not (self.hp <= 0 or self.is_attacking)):
+            # moving
+            if ((inputs is self.Input.NONE) or
+                (inputs&self.Input.LEFT and inputs&self.Input.RIGHT)):
+                self.anim_type      = self.Animation.IDLE
+            elif ((inputs&self.Input.LEFT and not inputs&self.Input.RIGHT) or
+                  (not inputs&self.Input.LEFT and inputs&self.Input.RIGHT)):
+                self.anim_type      = self.Animation.MOVE
+                self.is_facing_left = bool(inputs&self.Input.LEFT)
+                self.acc.x          = 3*(-1 if self.is_facing_left else 1)
+            # jumping
+            if (inputs&self.Input.JUMP and not (self.is_jumping or self.is_falling)):
+                self.acc.y      = -40
+                self.is_jumping = True
+                self.is_falling = False
+            # attacking
+            if (inputs&self.Input.ATK1 and inputs&self.Input.ATK2):
+                self.is_attacking = False
+            elif (inputs&self.Input.ATK1):
+                self.anim_type    = self.Animation.ATK1
+                self.anim_step    = 0
+                self.is_attacking = True
+            elif (inputs&self.Input.ATK2):
+                self.anim_type    = self.Animation.ATK2
+                self.anim_step    = 0
+                self.is_attacking = True
+        # physics
+        self.acc.x += self.vel.x*FRICTION
+        self.vel   += self.acc
+        self.pos   += (self.vel+self.acc*0.5)*(CLOCK.get_time()/100)
+        self.rect.midbottom = self.pos
+        # left & right bound
+        if (self.pos.x < 0):
+            self.pos.x = 0
+        if (self.pos.x > CANVAS_SIZE.x):
+            self.pos.x = CANVAS_SIZE.x
+        # jumping/falling
+        if (self.pos.y >= CANVAS_SIZE.y):
+            # grounded
+            self.vel.y      = 0
+            self.pos.y      = CANVAS_SIZE.y
+            self.is_jumping = False
+            self.is_falling = False
+        elif (self.vel.y < 0):
+            # jumping
+            if (not self.is_attacking):
+                self.anim_type = self.Animation.JUMP
+            self.is_jumping = True
+            self.is_falling = False
+        elif (self.vel.y > 0):
+            # falling
+            if (not self.is_attacking):
+                self.anim_type = self.Animation.FALL
+            self.is_jumping = False
+            self.is_falling = True
+        self.animate()
         return

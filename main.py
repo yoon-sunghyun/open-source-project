@@ -9,14 +9,14 @@ while True:
             sys.exit()
 
     # clearing canvas
-    CANVAS.fill((35, 35, 35))
+    CANVAS.fill((135, 175, 75))
 
     # drawing environments
     # LEVEL.draw(CANVAS)
 
     # drawing & updating enemies
-    # ENEMIES.draw(CANVAS)
-    # ENEMIES.update()
+    ENEMY.draw(CANVAS)
+    ENEMY.update(PLAYER.sprite)
 
     # drawing & updating player
     PLAYER.draw(CANVAS)
@@ -31,5 +31,5 @@ while True:
 
     # updating display
     pygame.display.flip()
-    pygame.display.set_caption(f"[Sejong Uni. Open Source Project]-[FPS : {CLOCK.get_fps():.2f}]")
+    pygame.display.set_caption(f"[{DESCRIPTION}]-[FPS : {CLOCK.get_fps():.2f}]")
     CLOCK.tick(FPS)
